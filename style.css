@@ -1,0 +1,27 @@
+/* Configurações gerais do corpo da página */
+body {
+    background-color: #f8f9fa;
+    padding-top: 50px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* O cartão central branco */
+.container {
+    max-width: 800px;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    /* Adiciona uma sombra suave*/
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+}
+
+/* Área de log onde aparece o JSON */
+pre {
+    background: #e9ecef;
+    padding: 15px;
+    border-radius: 5px;
+    max-height: 300px; /* Se o JSON for grande, cria barra de rolagem */
+    overflow-y: auto;
+    border: 1px solid #ced4da;
+    font-size: 0.9em;
+}

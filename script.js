@@ -99,6 +99,11 @@ async function listarPacientes() {
                     <td><strong>${nomeCompleto}</strong></td>
                     <td>${genero}</td>
                     <td>${documento}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="deletarPaciente('${id}')">
+                            Excluir
+                        </button>
+                    </td>
                 </tr>
             `;
             tbody.innerHTML += linha;
@@ -106,6 +111,33 @@ async function listarPacientes() {
 
     } catch (error) {
         tbody.innerHTML = `<tr><td colspan="4" class="text-danger text-center">Erro: ${error}</td></tr>`;
+    }
+}
+
+// Função para deletar um paciente específico
+async function deletarPaciente(id) {
+    if (!confirm("Tem certeza que deseja excluir o paciente " + id + "?")) {
+        return; // Cancela se o usuário clicar em "Não"
+    }
+
+    const baseUrl = document.getElementById('serverUrl').value;
+    const url = baseUrl.replace(/\/$/, "") + '/Patient/' + id;
+
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert("Paciente excluído com sucesso!");
+            listarPacientes(); // Atualiza a tabela
+        } else {
+            const erro = await response.json();
+            alert("Erro ao excluir: " + JSON.stringify(erro));
+        }
+
+    } catch (error) {
+        alert("Erro de conexão: " + error);
     }
 }
 

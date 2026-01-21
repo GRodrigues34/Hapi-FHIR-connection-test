@@ -22,9 +22,46 @@
             📡 Testar Conexão (GET Metadata)
         </button>
         
-        <button id="btnPost" class="btn btn-success">
-            ➕ Criar Paciente "Felipe" (POST)
-        </button>
+        <div class="card mt-4 mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">🆕 Novo Paciente</h5>
+        </div>
+            <div class="card-body">
+                <form id="formCadastro">
+                    <div class="row g-3">
+                        
+                        <div class="col-md-6">
+                            <label for="inputNome" class="form-label">Nome (Given Name)</label>
+                            <input type="text" class="form-control" id="inputNome" placeholder="Ex: Maria" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="inputSobrenome" class="form-label">Sobrenome (Family Name)</label>
+                            <input type="text" class="form-control" id="inputSobrenome" placeholder="Ex: Souza" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="inputCPF" class="form-label">CPF/Identificador</label>
+                            <input type="text" class="form-control" id="inputCPF" placeholder="000.000.000-00">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="selectGenero" class="form-label">Gênero FHIR</label>
+                            <select class="form-select" id="selectGenero">
+                                <option value="male">Masculino (male)</option>
+                                <option value="female">Feminino (female)</option>
+                                <option value="other">Outro (other)</option>
+                                <option value="unknown">Desconhecido (unknown)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-success">
+                                💾 Salvar Paciente
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <hr>

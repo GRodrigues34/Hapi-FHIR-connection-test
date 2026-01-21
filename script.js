@@ -43,6 +43,72 @@ async function testarConexao() {
     }
 }
 
+// Função para buscar e exibir os pacientes
+async function listarPacientes() {
+    const baseUrl = document.getElementById('serverUrl').value;
+    const tbody = document.getElementById('tabelaPacientes');
+    
+    // URL para buscar pacientes, ordenados pelos mais recentes (_lastUpdated)
+    const url = baseUrl.replace(/\/$/, "") + '/Patient?_sort=-_lastUpdated'; 
+
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center">Carregando dados...</td></tr>';
+
+    try {
+        const response = await fetch(url, {
+            cache: 'no-store'
+        });
+        const data = await response.json();
+        
+        // Limpa a tabela antes de preencher
+        tbody.innerHTML = '';
+
+        // Verifica se existem pacientes na resposta (campo 'entry')
+        if (!data.entry || data.entry.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum paciente encontrado.</td></tr>';
+            return;
+        }
+
+        // Para cada paciente encontrado...
+        data.entry.forEach(item => {
+            const paciente = item.resource;
+            
+            // 1. Pega o ID
+            const id = paciente.id || '#';
+
+            // 2. Monta o Nome (trata caso venha vazio)
+            let nomeCompleto = 'Sem nome';
+            if (paciente.name && paciente.name.length > 0) {
+                const given = paciente.name[0].given ? paciente.name[0].given.join(' ') : '';
+                const family = paciente.name[0].family || '';
+                nomeCompleto = `${given} ${family}`;
+            }
+
+            // 3. Pega o Gênero
+            const genero = paciente.gender || '-';
+
+            // 4. Pega o Identificador (CPF)
+            let documento = '-';
+            if (paciente.identifier && paciente.identifier.length > 0) {
+                documento = paciente.identifier[0].value || '-';
+            }
+
+            // Cria a linha HTML
+            const linha = `
+                <tr>
+                    <td><code>${id}</code></td>
+                    <td><strong>${nomeCompleto}</strong></td>
+                    <td>${genero}</td>
+                    <td>${documento}</td>
+                </tr>
+            `;
+            tbody.innerHTML += linha;
+        });
+
+    } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-danger text-center">Erro: ${error}</td></tr>`;
+    }
+}
+
 async function salvarPacienteFormulario(event) {
     event.preventDefault();
 
@@ -91,10 +157,9 @@ async function salvarPacienteFormulario(event) {
 
         if (response.ok) {
             alert("Paciente cadastrado com sucesso!");
-           /* document.getElementById('formCadastro').reset();
-            //Atualizar a tabela automaticamente
-            listarPacientes(); */
-        }
+           document.getElementById('formCadastro').reset();
+            listarPacientes(); 
+        }   
 
     } catch (error) {
         outputElement.textContent = "Erro ao salvar: " + error;
@@ -104,7 +169,7 @@ async function salvarPacienteFormulario(event) {
 // Configuração dos Botões 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnGet').addEventListener('click', testarConexao);
-    /*document.getElementById('btnListar').addEventListener('click', listarPacientes);*/
+    document.getElementById('btnListar').addEventListener('click', listarPacientes);
     
     const form = document.getElementById('formCadastro');
     if (form) {

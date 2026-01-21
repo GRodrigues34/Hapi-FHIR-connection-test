@@ -10,7 +10,7 @@
 <body>
 
 <div class="container shadow">
-    <h2 class="text-primary mb-4">🩺 SisAPEC-Work: Painel de Teste FHIR</h2>
+    <h2 class="text-primary mb-4">SisAPEC-Work: Painel de Teste FHIR</h2>
     
     <div class="mb-3">
         <label for="serverUrl" class="form-label">URL do Servidor HAPI-FHIR:</label>
@@ -19,12 +19,12 @@
 
     <div class="d-grid gap-2 d-md-block">
         <button id="btnGet" class="btn btn-info text-white">
-            📡 Testar Conexão (GET Metadata)
+            Testar Conexão
         </button>
         
         <div class="card mt-4 mb-4 border-primary">
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">🆕 Novo Paciente</h5>
+            <h5 class="mb-0">Novo Paciente</h5>
         </div>
             <div class="card-body">
                 <form id="formCadastro">
@@ -55,7 +55,7 @@
                         
                         <div class="col-12 text-end">
                             <button type="submit" class="btn btn-success">
-                                💾 Salvar Paciente
+                                Salvar Paciente
                             </button>
                         </div>
                     </div>
@@ -63,6 +63,38 @@
             </div>
         </div>
     </div>
+
+    <div class="mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-secondary"> Lista de Pacientes</h4>
+            
+            <button id="btnListar" class="btn btn-outline-primary btn-sm">
+                Atualizar Lista
+            </button>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-striped table-hover border">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome Completo</th>
+                        <th>Gênero</th>
+                        <th>CPF/Identificador</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaPacientes">
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">
+                            Clique em "Atualizar Lista" para carregar.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <hr>
 
     <hr>
 

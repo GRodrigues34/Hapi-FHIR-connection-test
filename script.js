@@ -43,6 +43,40 @@ async function testarConexao() {
     }
 }
 
+async function prepararEdicao(id) {
+    const baseUrl = document.getElementById('serverUrl').value;
+    const url = baseUrl.replace(/\/$/, "") + '/Patient/' + id;
+
+    try {
+        const response = await fetch(url);
+        const p = await response.json();
+
+        // Preenche os campos do formulário com os dados recebidos
+        if (p.name && p.name.length > 0) {
+            document.getElementById('inputNome').value = p.name[0].given ? p.name[0].given[0] : '';
+            document.getElementById('inputSobrenome').value = p.name[0].family || '';
+        }
+        if (p.identifier && p.identifier.length > 0) {
+            document.getElementById('inputCPF').value = p.identifier[0].value;
+        }
+        document.getElementById('selectGenero').value = p.gender || 'unknown';
+
+        // IMPORTANTE: Preenche o campo oculto com o ID
+        document.getElementById('pacienteId').value = id;
+
+        // Muda a cor do botão para amarelo (aviso visual de edição)
+        const btn = document.querySelector('#formCadastro button[type="submit"]');
+        btn.textContent = "Atualizar Paciente";
+        btn.className = "btn btn-warning";
+
+        // Rola a tela até o formulário
+        document.getElementById('formCadastro').scrollIntoView({ behavior: 'smooth' });
+
+    } catch (error) {
+        alert("Erro ao buscar dados: " + error);
+    }
+}
+
 // Função para buscar e exibir os pacientes
 async function listarPacientes() {
     const baseUrl = document.getElementById('serverUrl').value;
@@ -75,7 +109,7 @@ async function listarPacientes() {
             // 1. Pega o ID
             const id = paciente.id || '#';
 
-            // 2. Monta o Nome (trata caso venha vazio)
+            // 2. Monta o Nome 
             let nomeCompleto = 'Sem nome';
             if (paciente.name && paciente.name.length > 0) {
                 const given = paciente.name[0].given ? paciente.name[0].given.join(' ') : '';
@@ -83,10 +117,10 @@ async function listarPacientes() {
                 nomeCompleto = `${given} ${family}`;
             }
 
-            // 3. Pega o Gênero
+            // Gênero
             const genero = paciente.gender || '-';
 
-            // 4. Pega o Identificador (CPF)
+            // Identificador (CPF)
             let documento = '-';
             if (paciente.identifier && paciente.identifier.length > 0) {
                 documento = paciente.identifier[0].value || '-';
@@ -100,9 +134,8 @@ async function listarPacientes() {
                     <td>${genero}</td>
                     <td>${documento}</td>
                     <td>
-                        <button class="btn btn-danger btn-sm" onclick="deletarPaciente('${id}')">
-                            Excluir
-                        </button>
+                        <button class="btn btn-warning btn-sm me-1" onclick="prepararEdicao('${id}')">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="deletarPaciente('${id}')">Excluir</button>
                     </td>
                 </tr>
             `;
@@ -114,7 +147,7 @@ async function listarPacientes() {
     }
 }
 
-// Função para deletar um paciente específico
+
 async function deletarPaciente(id) {
     if (!confirm("Tem certeza que deseja excluir o paciente " + id + "?")) {
         return; // Cancela se o usuário clicar em "Não"
@@ -145,56 +178,62 @@ async function salvarPacienteFormulario(event) {
     event.preventDefault();
 
     const baseUrl = document.getElementById('serverUrl').value;
-    const url = baseUrl.replace(/\/$/, "") + '/Patient';
-
-    // 2. Captura os valores digitados nos inputs
+    
+    //Pega o ID do campo oculto (se tiver valor, é edição)
+    const id = document.getElementById('pacienteId').value;
+    
     const nome = document.getElementById('inputNome').value;
     const sobrenome = document.getElementById('inputSobrenome').value;
     const cpf = document.getElementById('inputCPF').value;
     const genero = document.getElementById('selectGenero').value;
 
-    // 3. Monta o Objeto JSON FHIR
     const paciente = {
         "resourceType": "Patient",
-        "identifier": [
-            {
-                "system": "http://hapi-fhir-test.com/patients", // fictício
-                "value": cpf
-            }
-        ],
-        "name": [
-            {
-                "family": sobrenome,
-                "given": [nome]
-            }
-        ],
+        "identifier": [{ "system": "http://hapi-fhir-test.com/patients", "value": cpf }],
+        "name": [{ "family": sobrenome, "given": [nome] }],
         "gender": genero
     };
 
-    const outputElement = document.getElementById('output');
-    outputElement.textContent = "Enviando dados...";
+    let url;
+    let method;
 
-    // 4. Envia para o Servidor (POST)
+    // Lógica de Decisão: PUT ou POST
+    if (id) {
+        // edit
+        paciente.id = id; 
+        url = baseUrl.replace(/\/$/, "") + '/Patient/' + id;
+        method = 'PUT';
+    } else {
+        // criar
+        url = baseUrl.replace(/\/$/, "") + '/Patient';
+        method = 'POST';
+    }
+
     try {
         const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/fhir+json'
-            },
+            method: method,
+            headers: { 'Content-Type': 'application/fhir+json' },
             body: JSON.stringify(paciente)
         });
 
-        const data = await response.json();
-        logOutput(data, response.status);
-
         if (response.ok) {
-            alert("Paciente cadastrado com sucesso!");
-           document.getElementById('formCadastro').reset();
-            listarPacientes(); 
-        }   
+            alert(id ? "Paciente atualizado!" : "Paciente criado!");
+            
+            // Limpa tudo
+            document.getElementById('formCadastro').reset();
+            document.getElementById('pacienteId').value = ""; 
+            
+            // Volta o botão para o estado normal
+            const btn = document.querySelector('#formCadastro button[type="submit"]');
+            btn.textContent = "Salvar Paciente";
+            btn.className = "btn btn-success";
 
+            listarPacientes();
+        } else {
+            alert("Erro no servidor");
+        }
     } catch (error) {
-        outputElement.textContent = "Erro ao salvar: " + error;
+        alert("Erro: " + error);
     }
 }
 

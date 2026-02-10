@@ -120,7 +120,7 @@ async function listarPacientes() {
             // Gênero
             const genero = paciente.gender || '-';
 
-            // Identificador (CPF)
+            // CPF
             let documento = '-';
             if (paciente.identifier && paciente.identifier.length > 0) {
                 documento = paciente.identifier[0].value || '-';
